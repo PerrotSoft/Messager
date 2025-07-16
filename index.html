@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Звонковая Книга</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2em auto; }
+    input, button { margin: 0.3em 0; padding: 0.5em; width: 100%; }
+    ul { padding-left: 0; list-style: none; }
+    li { border: 1px solid #ccc; padding: 1em; margin: 0.5em 0; border-radius: 8px; }
+    .actions button { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>📞 Звонковая Книга</h1>
+
+  <form id="form">
+    <input type="text" id="name" placeholder="Имя" required>
+    <input type="text" id="callname" placeholder="Звонковое имя (@nickname)" required>
+    <input type="url" id="site" placeholder="Ваш сайт (https://...)" required>
+    <button type="submit">Добавить в список</button>
+  </form>
+
+  <h2>👥 Участники:</h2>
+  <ul id="userList"></ul>
+
+  <script>
+    const form = document.getElementById("form");
+    const list = document.getElementById("userList");
+    const users = [];
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const callname = document.getElementById("callname").value.trim();
+      const site = document.getElementById("site").value.trim();
+
+      if (!name || !callname || !site) return;
+
+      const user = { name, callname, site };
+      users.push(user);
+      updateList();
+
+      form.reset();
+    };
+
+    function updateList() {
+      list.innerHTML = "";
+      users.forEach((u, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${u.callname}</strong> (${u.name})<br>
+          🌐 <a href="${u.site}" target="_blank">${u.site}</a><br>
+          <div class="actions">
+            <button onclick="alert('🔔 Звонок пользователю ${u.callname}')">📞 Позвонить</button>
+            <button onclick="alert('💬 Написать пользователю ${u.callname}')">💬 Написать</button>
+            <button onclick="removeUser(${i})">❌ Удалить</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function removeUser(index) {
+      users.splice(index, 1);
+      updateList();
+    }
+  </script>
+</body>
+</html>
