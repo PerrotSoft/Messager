@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WavyChatApp Login / Register</title>
+  <link rel="icon" type="image/x-icon" href="WavyChatApp.ico">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .auth-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .input-group input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0088cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #006bb3;
+    }
+    #error-message {
+      color: red;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .toggle-form {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #777;
+    }
+    .toggle-form a {
+        color: #0088cc;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .toggle-form a:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-container"> 
+<h2 id="formTitle">Registration</h2> 
+<div class="input-group"> 
+<label for="usernameInput">Username:</label> 
+<input type="text" id="usernameInput" placeholder="Your name"> 
+</div> 
+<div class="input-group"> 
+<label for="emailInput">Email:</label> 
+<input type="email" id="emailInput" placeholder="example@email.com"> 
+</div> 
+<div class="input-group"> 
+<label for="passwordInput">Password:</label> 
+<input type="password" id="passwordInput" placeholder="Minimum 6 characters"> 
+</div> 
+<button id="authButton" onclick="handleAuth()">Register</button>
+<p id="error-message"></p>
+<p class="toggle-form">Already have an account? <a id="toggleAuthMode">Login</a></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkddzOzJyOK4JfvGq7S6SD3usXaAGqBog",
+    authDomain: "mymessenger-c1bde.firebaseapp.com",
+    projectId: "mymessenger-c1bde",
+    storageBucket: "mymessenger-c1bde.firebasestorage.app",
+    messagingSenderId: "331583803279",
+    appId: "1:331583803279:web:10a7a2186d583abdab05fa",
+    measurementId: "G-WBT9D86V0W",
+    databaseURL: "https://mymessenger-c1bde-default-rtdb.firebaseio.com"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  // DOM Elements
+  const formTitle = document.getElementById('formTitle');
+  const usernameInput = document.getElementById('usernameInput');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const authButton = document.getElementById('authButton');
+  const errorMessage = document.getElementById('error-message');
+  const toggleAuthModeLink = document.getElementById('toggleAuthMode');
+
+  let isRegisterMode = true; // true = регистрация, false = вход
+
+  function displayError(message) {
+    errorMessage.textContent = message;
+  }
+
+  // Проверка статуса аутентификации при загрузке страницы
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      // Пользователь уже вошел, перенаправляем на главную
+      window.location.href = 'index.html';
+    }
+  });
+
+toggleAuthModeLink.addEventListener('click', () => {
+isRegisterMode = !isRegisterMode;
+if (isRegisterMode) {
+formTitle.textContent = 'Register';
+usernameInput.style.display = 'block'; // Show username
+authButton.textContent = 'Register';
+toggleAuthModeLink.textContent = 'Login';
+} else {
+formTitle.textContent = 'Login';
+usernameInput.style.display = 'none'; // Hide username on login
+authButton.textContent = 'Login';
+toggleAuthModeLink.textContent = 'Register';
+}
+displayError(''); // Clear error message
+});
+async function handleAuth() {
+const email = emailInput.value.trim();
+const password = passwordInput.value.trim();
+const username = usernameInput.value.trim();
+
+displayError(''); // Clear previous errors
+
+if (!email || !password) {
+displayError('Please enter Email and Password.');
+return;
+}
+
+if (isRegisterMode) {
+// Register a new user
+if (!username) {
+displayError('Please enter Username.');
+return;
+}
+if (password.length < 6) {
+displayError('Password must be at least 6 characters.');
+return;
+}
+
+try {
+// 1. Check if username is unique in database
+const usernameLower = username.toLowerCase();
+const usernameSnapshot = await db.ref('usernames').orderByValue().equalTo(usernameLower).once('value');
+if (usernameSnapshot.exists()) {
+displayError('This username is already taken. Please choose another one.');
+return;
+}
+
+// 2. Create a user in Firebase Authentication
+const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+const user = userCredential.user;
+
+// 3. Store the username and email in Realtime Database (in the users/$uid node)
+await db.ref('users/' + user.uid).set({
+username: username,
+username_lower: usernameLower, // Lowercase name for searching
+email: email,
+registeredAt: Date.now()
+});
+
+// 4. Store the username in the "usernames" node for quick uniqueness checking
+await db.ref('usernames/' + user.uid).set(usernameLower);
+
+alert('Registration successful! You are logged in.');
+window.location.href = 'index.html'; // Redirect to the main page
+} catch (error) {
+console.error("Registration error:", error);
+let message = 'Registration error: ' + error.message;
+if (error.code === 'auth/email-already-in-use') {
+message = 'This email is already in use. Please log in or use another email.';
+} else if (error.code === 'auth/invalid-email') {
+message = 'Invalid email address.';
+}
+displayError(message);
+}
+} else {
+// Login of an existing user
+try {
+await auth.signInWithEmailAndPassword(email, password);
+alert('Successful login!');
+window.location.href = 'index.html'; // Redirect to the main page
+} catch (error) {
+console.error("Error while logging in:", error);
+let message = 'Login error: ' + error.message;
+if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+message = 'Incorrect email or password.';
+}
+displayError(message);
+}
+}
+}
+</script>
+
+</body>
+</html>
