@@ -2,139 +2,73 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Звонковая Книга</title>
+  <title>🔥 Firebase Чат</title>
   <style>
-    :root {
-      --bg: #f9f9f9;
-      --card: #ffffff;
-      --border: #ddd;
-      --accent: #0088cc;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: var(--bg);
-      padding: 2em;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    h1 {
-      color: var(--accent);
-      text-align: center;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      font-size: 1em;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #006699;
-    }
-
-    .user-card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .user-card strong {
-      color: var(--accent);
-      font-size: 1.1em;
-    }
-
-    .actions button {
-      margin-top: 5px;
-      margin-right: 5px;
-      font-size: 0.9em;
-    }
-
-    #search {
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-
-    small {
-      color: #888;
-    }
+    body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #f0f0f0; }
+    header { background: #0088cc; color: white; padding: 1em; text-align: center; font-weight: bold; }
+    #chat { flex: 1; padding: 1em; overflow-y: auto; display: flex; flex-direction: column; }
+    .msg { margin: 5px 0; padding: 10px; background: white; border-radius: 10px; max-width: 70%; }
+    .me { align-self: flex-end; background: #d0f0ff; }
+    .other { align-self: flex-start; background: #ffffff; }
+    footer { display: flex; padding: 0.5em; background: white; border-top: 1px solid #ccc; }
+    input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-right: 5px; }
+    button { padding: 10px; border: none; border-radius: 8px; background: #0088cc; color: white; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>📞 Контакты</h1>
+  <header>💬 Firebase Чат</header>
+  <div id="chat"></div>
+  <footer>
+    <input type="text" id="msgInput" placeholder="Сообщение..." />
+    <button onclick="send()">➤</button>
+  </footer>
 
-  <form id="form">
-    <input type="text" id="name" placeholder="Имя" required>
-    <input type="text" id="callname" placeholder="Звонковое имя (@nickname)" required>
-    <input type="url" id="site" placeholder="Ваш сайт (https://...)" required>
-    <button type="submit">Добавить</button>
-  </form>
-
-  <input type="text" id="search" placeholder="🔍 Поиск по имени...">
-
-  <div id="userList"></div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <script>
-    const form = document.getElementById("form");
-    const list = document.getElementById("userList");
-    const search = document.getElementById("search");
-    const users = [];
-
-    form.onsubmit = e => {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const callname = document.getElementById("callname").value.trim();
-      const site = document.getElementById("site").value.trim();
-      if (!name || !callname || !site) return;
-      users.push({ name, callname, site });
-      form.reset();
-      updateList();
+    // 🔐 Твоя SDK-конфигурация
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkddzOzJyOK4JfvGq7S6SD3usXaAGqBog",
+      authDomain: "mymessenger-c1bde.firebaseapp.com",
+      projectId: "mymessenger-c1bde",
+      storageBucket: "mymessenger-c1bde.firebasestorage.app",
+      messagingSenderId: "331583803279",
+      appId: "1:331583803279:web:10a7a2186d583abdab05fa",
+      measurementId: "G-WBT9D86V0W",
+      databaseURL: "https://mymessenger-c1bde-default-rtdb.firebaseio.com" // 🔥 добавлено вручную
     };
 
-    search.oninput = () => updateList();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("msgInput");
 
-    function updateList() {
-      const query = search.value.trim().toLowerCase();
-      list.innerHTML = "";
-      users
-        .filter(u => u.name.toLowerCase().includes(query))
-        .forEach((u, i) => {
-          const div = document.createElement("div");
-          div.className = "user-card";
-          div.innerHTML = `
-            <strong>${u.callname}</strong> (${u.name})<br>
-            <a href="${u.site}" target="_blank">🌐 ${u.site}</a><br>
-            <small>ID: ${i}</small><br>
-            <div class="actions">
-              <button onclick="alert('📞 Звонок: ${u.callname}')">📞 Позвонить</button>
-              <button onclick="alert('💬 Написать: ${u.callname}')">💬 Написать</button>
-              <button onclick="removeUser(${i})">❌ Удалить</button>
-            </div>
-          `;
-          list.appendChild(div);
-        });
+    // Случайный ник
+    const username = "user_" + Math.floor(Math.random() * 1000);
+
+    // Отправка сообщения
+    function send() {
+      const text = input.value.trim();
+      if (!text) return;
+      db.ref("messages").push({ user: username, text, time: Date.now() });
+      input.value = "";
     }
 
-    function removeUser(index) {
-      users.splice(index, 1);
-      updateList();
-    }
+    // Прием сообщений
+    db.ref("messages").limitToLast(50).on("child_added", snap => {
+      const msg = snap.val();
+      const div = document.createElement("div");
+      div.className = "msg " + (msg.user === username ? "me" : "other");
+      div.textContent = msg.user + ": " + msg.text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    });
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") send();
+    });
   </script>
 </body>
 </html>
