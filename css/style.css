@@ -1,0 +1,943 @@
+    /* Общие стили */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      background-color: #f0f2f5;
+      overflow: hidden;
+    }
+
+    /* Стили для левого сайдбара (список чатов) */
+    .sidebar {
+      width: 300px;
+      background-color: #fff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      color: #333;
+      display: flex;
+      flex-wrap: wrap; /* Для кнопок и поля */
+      gap: 10px;
+      align-items: center;
+      position: relative; /* Для позиционирования плюс-меню */
+    }
+    
+    .sidebar-header #usernameDisplay {
+        font-weight: bold;
+        flex-grow: 1; /* Занимает доступное пространство */
+        font-size: 1.1em;
+        color: #333;
+        margin-right: 5px; /* Отступ от кнопки плюса */
+        display: flex; /* Для выравнивания аватара и текста */
+        align-items: center;
+        gap: 8px; /* Отступ между аватаром и именем */
+    }
+    .sidebar-header #usernameDisplay .user-avatar-small {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        font-size: 0.9em;
+    }
+
+    .sidebar-header .plus-button {
+        background: none;
+        border: none;
+        font-size: 1.8em; /* Большой плюс */
+        font-weight: bold;
+        color: #0088cc;
+        cursor: pointer;
+        padding: 0 5px;
+        line-height: 1; /* Для центрирования */
+    }
+    .sidebar-header .plus-button:hover {
+        color: #006bb3;
+    }
+
+
+    .sidebar-header button {
+        background-color: #0088cc;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+    .sidebar-header button:hover {
+        background-color: #006bb3;
+    }
+    .sidebar-header .search-btn {
+        background: none;
+        border: none;
+        color: #0088cc;
+        cursor: pointer;
+        font-size: 1.1em;
+        margin-left: 0; /* Убираем лишний отступ */
+        padding: 0;
+    }
+    .sidebar-header .search-btn:hover {
+        text-decoration: underline;
+    }
+
+
+    .chat-list {
+      flex-grow: 1;
+      padding: 0;
+      list-style: none;
+    }
+
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .chat-list-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .chat-list-item.active {
+      background-color: #e0f2ff;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: white;
+      font-size: 1.2em;
+      margin-right: 10px;
+      flex-shrink: 0;
+      overflow: hidden; /* Для аватарок-изображений */
+    }
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .chat-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-name {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .last-message {
+      font-size: 0.9em;
+      color: #777;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Основная область чата */
+    .main-chat-area {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #e0e5ea;
+    }
+
+    .chat-header {
+      background-color: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+      position: relative; /* Для контекстного меню */
+    }
+
+    .chat-header .chat-info {
+        margin-left: 10px;
+        flex-grow: 1; /* Занимает место */
+    }
+
+    /* NEW: Кнопка "Опции чата" */
+    .chat-options-button {
+        background: none;
+        border: none;
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #0088cc;
+        cursor: pointer;
+        padding: 0 5px;
+        line-height: 1;
+        margin-left: 15px;
+    }
+    .chat-options-button:hover {
+        color: #006bb3;
+    }
+
+    /* NEW: Контекстное меню для опций чата */
+    .chat-options-menu {
+        display: none;
+        position: absolute;
+        top: 60px; /* Под кнопкой */
+        right: 10px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        z-index: 100;
+        padding: 10px 0;
+        min-width: 200px;
+    }
+    .chat-options-menu button {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        background: none;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        color: #333;
+        font-size: 1em;
+    }
+    .chat-options-menu button:hover {
+        background-color: #f0f2f5;
+    }
+    .chat-options-menu button.danger {
+        color: red;
+    }
+
+
+    .chat-messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+      max-width: 70%;
+      word-wrap: break-word;
+      cursor: pointer; /* Для выделения сообщений */
+    }
+
+    .message.selected {
+        outline: 2px solid #0088cc;
+        border-radius: 15px;
+        box-shadow: 0 0 5px rgba(0, 136, 204, 0.5);
+    }
+
+    .message-bubble {
+      padding: 10px 15px;
+      border-radius: 15px;
+      position: relative;
+    }
+
+    .message.me {
+      align-self: flex-end;
+    }
+
+    .message.me .message-bubble {
+      background-color: #d0f0ff;
+      color: #333;
+      border-bottom-right-radius: 5px;
+    }
+
+    .message.other {
+      align-self: flex-start;
+    }
+
+    .message.other .message-bubble {
+      background-color: #fff;
+      color: #333;
+      border-bottom-left-radius: 5px;
+    }
+
+    .message-author {
+      font-weight: bold;
+      font-size: 0.9em;
+      margin-bottom: 3px;
+      color: #007bff;
+    }
+    .message.me .message-author {
+        color: #0056b3;
+    }
+
+    .message-text {
+      font-size: 1em;
+    }
+
+    .message-time {
+      font-size: 0.75em;
+      color: #999;
+      margin-top: 5px;
+      text-align: right;
+      display: block;
+    }
+
+    /* NEW: Styles for multiple images/documents */
+    .message-images, .message-documents {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px; /* Отступ между медиафайлами */
+        margin-top: 5px;
+    }
+    .message-bubble .message-images img {
+        /* max-width: 100%; */ /* Убираем это, чтобы позволить гибкий размер */
+        height: auto;
+        max-height: 200px; /* Ограничиваем высоту для галереи */
+        border-radius: 8px;
+        object-fit: cover;
+        cursor: pointer;
+        /* NEW: Responsive images within bubble */
+        flex-basis: auto; /* Allow items to determine their own size */
+        min-width: 50px; /* Minimum size */
+    }
+    /* Если изображений много, можно уменьшить размер для плитки */
+    .message-images:has(img:nth-child(2)) img {
+        max-width: calc(50% - 4px); /* Два изображения в ряд */
+    }
+    .message-images:has(img:nth-child(3)) img {
+        max-width: calc(33.33% - 5.33px); /* Три изображения в ряд */
+    }
+    .message-images:has(img:nth-child(4)) img {
+        max-width: calc(33.33% - 5.33px); /* При 4 изображениях также 3 в ряд, 4-е ниже */
+    }
+    /* Для 4х изображений, чтобы они были 2x2 */
+    .message-images:has(img:nth-child(4)):not(:has(img:nth-child(5))) img {
+        max-width: calc(50% - 4px);
+    }
+    /* Если много изображений, можно сделать их более компактными */
+    .message-images:has(img:nth-child(5)) img,
+    .message-images:has(img:nth-child(6)) img {
+        max-width: calc(33.33% - 5.33px);
+    }
+
+
+    .message-bubble .document-link {
+        display: flex; /* Changed to flex for better icon+text alignment */
+        align-items: center;
+        padding: 8px;
+        background-color: #e6f3ff;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #0088cc;
+        font-weight: bold;
+        word-break: break-all;
+        margin-top: 5px;
+        width: fit-content; /* Adjust width to content */
+        max-width: 100%; /* Ensure it doesn't overflow */
+        gap: 5px; /* Space between icon and text */
+    }
+    .message-bubble .document-link:hover {
+        background-color: #d0eaff;
+    }
+    .message-bubble .document-link .file-icon {
+        font-size: 1.2em; /* Icon size within link */
+    }
+
+    .message-media-separator {
+        border-top: 1px solid rgba(0,0,0,0.1); /* Легкая разделительная линия */
+        margin-top: 8px;
+        padding-top: 5px;
+        display: none; /* Изначально скрыт, показывается JS если есть и текст и медиа */
+    }
+
+
+    .chat-input-area {
+      background-color: #fff;
+      padding: 15px 20px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      position: relative; /* Для channel-specific-button */
+    }
+
+    .chat-input-area .input-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .chat-input-area input[type="text"] {
+      flex-grow: 1;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 1em;
+    }
+
+    .chat-input-area button {
+      background-color: #0088cc;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .chat-input-area button:hover {
+      background-color: #006bb3;
+    }
+
+    /* Стили для кнопок загрузки файла/изображения */
+    .image-upload-btn, .document-upload-btn {
+        background-color: #f0f2f5;
+        border: 1px solid #e0e0e0;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        cursor: pointer;
+        color: #555;
+        transition: background-color 0.2s ease;
+        position: relative;
+        overflow: hidden; /* Чтобы скрыть input file */
+    }
+    .image-upload-btn:hover, .document-upload-btn:hover {
+        background-color: #e0e0e0;
+    }
+    .image-upload-btn input[type="file"],
+    .document-upload-btn input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+
+    .delete-btn {
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+      font-size: 0.7em;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    }
+    .message.me:hover .delete-btn { display: flex; }
+
+    .settings-btn, .language-btn, .bot-btn {
+        background: none;
+        border: none;
+        color: #0088cc;
+        cursor: pointer;
+        font-size: 1.1em;
+        margin-left: 10px;
+    }
+    .settings-btn:hover, .language-btn:hover, .bot-btn:hover {
+        text-decoration: underline;
+    }
+    
+    /* НОВОЕ: Предпросмотр нескольких изображений/документов */
+    #mediaPreviewContainer {
+        display: none; /* Скрыто по умолчанию */
+        flex-wrap: wrap; /* Для расположения превью в строку */
+        gap: 10px; /* Отступ между элементами превью */
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        overflow-x: auto; /* Прокрутка, если много превью */
+    }
+    .media-preview-item {
+        position: relative;
+        width: 90px; /* Размер превью */
+        height: 90px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0; /* Не сжимать элементы */
+    }
+    .media-preview-item.image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .media-preview-item.document-preview {
+        flex-direction: column;
+        font-size: 0.8em;
+        color: #555;
+        padding: 5px;
+        box-sizing: border-box; /* Учитывать padding в размерах */
+        background-color: #e6f3ff;
+    }
+    .media-preview-item.document-preview .file-icon {
+        font-size: 2em;
+        color: #0088cc;
+        margin-bottom: 2px;
+    }
+    .media-preview-item.document-preview .file-name {
+        word-break: break-all;
+        text-align: center;
+        font-size: 0.7em;
+        line-height: 1.2;
+        max-height: 3.6em; /* Ограничить 3 строками */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+    .remove-media-preview-individual { /* Кнопка удаления для каждого превью */
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 0.7em;
+        z-index: 10;
+    }
+
+    /* NEW: Круглая кнопка для каналов */
+    #channelComponentsBtn {
+        position: absolute;
+        bottom: 80px; /* Над полем ввода */
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #0088cc;
+        color: white;
+        border-radius: 50%;
+        display: none; /* Скрыто по умолчанию, показывается для каналов */
+        justify-content: center;
+        align-items: center;
+        font-size: 2em;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        z-index: 50;
+    }
+    #channelComponentsBtn:hover {
+        background-color: #006bb3;
+    }
+
+
+    /* Модальные окна */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+    }
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .modal-input-group {
+        margin-bottom: 15px;
+    }
+    .modal-input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .modal-input-group input, .modal-input-group button {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .modal-input-group button {
+        width: 100%;
+        background-color: #0088cc;
+        color: white;
+        cursor: pointer;
+    }
+    .modal-input-group button:hover {
+        background-color: #006bb3;
+    }
+
+    .search-results-list {
+        list-style: none;
+        padding: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 5_px;
+        margin-top: 10px;
+    }
+    .search-results-list li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search-results-list li:last-child {
+        border-bottom: none;
+    }
+    .search-results-list button {
+        width: auto;
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+
+    /* Плюс-меню (модальное окно) */
+    #plusMenuModal .modal-content button {
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1.1em;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    #plusMenuModal .modal-content button:hover {
+        background-color: #e0e0e0;
+    }
+
+    /* Меню скачивания изображений */
+    .download-menu {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 1000;
+        padding: 5px 0;
+        border-radius: 5px;
+        min-width: 150px;
+    }
+
+    .download-menu-item {
+        padding: 8px 15px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .download-menu-item:hover {
+        background-color: #f0f0f0;
+    }
+    .download-menu-item a {
+        text-decoration: none;
+        color: inherit;
+    }
+    .download-menu-item:hover a {
+        color: #0088cc;
+    }
+    /* Стили для кнопки "Показать/Скрыть каналы" */
+    #toggleChannelsBtn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #0088cc;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    #toggleChannelsBtn:hover {
+        background-color: #006bb3;
+    }
+    /* Стили для каналов */
+
+    .channels-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .channel-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .channel-item:hover {
+        background-color: #f5f5f5;
+    }
+    .channel-item.active {
+        background-color: #e0f2ff;
+    }
+    .channel-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1.2em;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+    .channel-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .channel-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .channel-name {
+        font-weight: bold;
+        color: #333;
+    }
+    .channel-description {
+        font-size: 0.9em;
+        color: #777;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* Стили для кнопки "Создать канал" */
+    #createChannelBtn {                                                         
+        background-color: #0088cc;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 10px;
+    }
+    #createChannelBtn:hover {
+        background-color: #006bb3;
+    }
+
+    /* Стили для кнопки "Показать/Скрыть каналы" */
+    #toggleChannelsBtn {                
+
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #0088cc;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    #toggleChannelsBtn:hover {
+        background-color: #006bb3;
+    }
+/* --- Мобильная адаптация --- */
+@media (max-width: 700px) {
+    body {
+        flex-direction: column;
+        height: 100vh;
+        overflow: auto;
+    }
+    .sidebar {
+        width: 100vw;
+        min-width: 0;
+        max-width: 100vw;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        box-shadow: none;
+        position: static;
+        z-index: 10;
+    }
+    .sidebar-header {
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 10px;
+        font-size: 0.95em;
+    }
+    .chat-list-item {
+        padding: 8px 10px;
+        font-size: 0.95em;
+    }
+    .main-chat-area {
+        flex-grow: 1;
+        width: 100vw;
+        min-width: 0;
+        max-width: 100vw;
+        padding: 0;
+    }
+    .chat-header {
+        flex-wrap: wrap;
+        padding: 10px 8px;
+        font-size: 0.95em;
+    }
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 1em;
+        margin-right: 6px;
+    }
+    .chat-messages {
+        padding: 10px 4px;
+        gap: 7px;
+        font-size: 0.95em;
+    }
+    .message {
+        max-width: 95vw;
+        font-size: 0.95em;
+    }
+    .chat-input-area {
+        padding: 10px 8px;
+        gap: 7px;
+    }
+    .chat-input-area .input-row {
+        gap: 7px;
+    }
+    .chat-input-area input[type="text"] {
+        font-size: 1em;
+        padding: 8px 10px;
+    }
+    .chat-input-area button,
+    .image-upload-btn,
+    .document-upload-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.2em;
+    }
+    #channelComponentsBtn {
+        right: 10px;
+        bottom: 70px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5em;
+    }
+    .modal-content {
+        width: 98vw;
+        max-width: 98vw;
+        padding: 10px;
+    }
+    .media-preview-item {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+/* --- Улучшения стиля --- */
+.sidebar-header,
+.chat-header {
+    background: linear-gradient(90deg, #e0f2ff 0%, #fff 100%);
+}
+.chat-list-item.active {
+    border-left: 4px solid #0088cc;
+}
+.chat-options-button {
+    border-radius: 50%;
+    background: #f0f2f5;
+    transition: background 0.2s;
+}
+.chat-options-button:hover {
+    background: #e0e0e0;
+}
+.download-menu {
+    box-shadow: 0 4px 16px rgba(0,136,204,0.08);
+}
+.download-menu-item {
+    border-radius: 4px;
+    margin: 2px 0;
+}
+.download-menu-item:hover {
+    background-color: #e0f2ff;
+}

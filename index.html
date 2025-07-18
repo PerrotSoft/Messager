@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WavyChatApp</title>
+  <link rel="icon" type="image/x-icon" href="WavyChatApp.ico">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar"> 
+    <div class="sidebar-header"> 
+    <span id="usernameDisplay"><span class="user-avatar-small">?</span> Loading...</span> 
+    <button class="plus-button" onclick="openPlusMenuModal()">+</button> 
+    <button onclick="logout()">Logout</button> 
+    <button class="settings-btn" onclick="openSettings()">⚙️Settings</button> 
+    </div> 
+    <ul id="chatList" class="chat-list"> 
+    </ul>
+    </div>
+
+    <div class="main-chat-area"> 
+        <div class="chat-header"> 
+            <div class="avatar" id="currentChatAvatar" style="background-color: #007bff;">?</div> 
+                <div class="chat-info"> 
+                    <div class="chat-name" id="currentChatName">Loading...</div> 
+                        <div class="last-message" id="currentChatType"></div> 
+                        </div> 
+                            <button class="language-btn" onclick="changeLanguage()">🌐 Language</button> 
+                            <button class="bot-btn" onclick="showBots()">🤖 Bots</button> 
+                            <button class="chat-options-button" id="chatOptionsButton" onclick="toggleChatOptionsMenu()">...</button> 
+                            <div class="chat-options-menu" id="chatOptionsMenu"> 
+                        </div> 
+                    </div> 
+                    <div id="chatMessages" class="chat-messages"> 
+                </div> 
+                <div class="chat-input-area"> 
+                <div id="mediaPreviewContainer" class="input-row"> 
+            </div> 
+            <div class="input-row"> 
+            <input type="text" id="messageInput" placeholder="Write a message..." /> 
+            <label class="image-upload-btn chat-input-button" title="Upload image"> 
+            🖼️ 
+            <input type="file" id="imageInput" accept="image/*" multiple /> </label> 
+            <label class="document-upload-btn chat-input-button" title="Upload document"> 
+            📎 
+            <input type="file" id="documentInput" multiple /> </label> 
+            <button onclick="sendMessage()">➤</button> 
+            </div> 
+        <button id="channelComponentsBtn" onclick="openChannelComponentsMenu()">+</button> 
+        </div>
+    </div>
+
+    <div id="plusMenuModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closePlusMenuModal()">&times;</span>
+            <h2>What would you like to create?</h2>
+            <button onclick="openCreateGroupModal()">Create a new group</button>
+            <button onclick="openCreateChannelModal()">Create a new channel</button>
+            <button onclick="openSearchModal()">Search / Add user, group or channel</button>
+        </div>
+    </div>
+
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeCreateGroupModal()">&times;</span>
+            <h2>Create a new group</h2>
+            <div class="modal-input-group">
+                <label for="newGroupNameInput">Name groups:</label>
+                <input type="text" id="newGroupNameInput" placeholder="Group Name">
+            </div>
+            <div class="modal-input-group">
+                <label for="groupAvatarInput">Group Avatar (optional):</label>
+                <input type="file" id="groupAvatarInput" accept="image/*">
+            </div>
+            <button onclick="createGroup()">Create Group</button>
+        </div>
+    </div>
+
+    <div id="createChannelModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeCreateChannelModal()">&times;</span>
+            <h2>Create new channel</h2>
+            <div class="modal-input-group">
+                <label for="newChannelNameInput">Channel name:</label>
+                <input type="text" id="newChannelNameInput" placeholder="Channel name">
+            </div>
+                <div class="modal-input-group">
+                <label for="channelAvatarInput">Channel avatar (optional):</label>
+                <input type="file" id="channelAvatarInput" accept="image/*">
+            </div>
+            <button onclick="createChannel()">Create channel</button> 
+        </div>
+    </div>
+
+    <div id="searchModal" class="modal"> 
+        <div class="modal-content"> 
+            <span class="close-button" onclick="closeSearchModal()">&times;</span> 
+            <h2>Search</h2> 
+            <div class="modal-input-group"> 
+                <input type="text" id="searchInput" placeholder="Enter a name to search..."> 
+                <button onclick="performSearch()">Search</button> 
+            </div> 
+            <ul id="searchResults" class="search-results-list"> 
+            </ul> 
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal"> 
+        <div class="modal-content"> 
+            <span class="close-button" onclick="closeSettingsModal()">&times;</span> 
+            <h2>Settings</h2> 
+            <div class="modal-input-group">
+                <label for="settingUsername">Your name:</label>
+                <input type="text" id="settingUsername" placeholder="Username">
+                <button onclick="saveSettings()">Save name</button>
+            </div>
+            <div class="modal-input-group">
+                <label for="avatarUploadInput">Your avatar:</label>
+                <input type="file" id="avatarUploadInput" accept="image/*">
+                <button onclick="uploadUserAvatar()">Upload/Change avatar</button>
+                <div id="currentAvatarPreview" class="avatar" style="margin-top: 10px;">?</div>
+            </div>
+        </div>
+    </div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+<script type="module" src="js/firebase-init.js"></script>
+<script type="module" src="js/dom-elements.js"></script>
+<script type="module" src="js/utils.js"></script>
+<script type="module" src="js/auth-service.js"></script>
+<script type="module" src="js/chat-list-manager.js"></script>
+<script type="module" src="js/chat-message-manager.js"></script>
+<script type="module" src="js/chat-options.js"></script>
+<script type="module" src="js/modal-handlers.js"></script>
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>

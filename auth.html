@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WavyChatApp Login / Register</title>
+  <link rel="icon" type="image/x-icon" href="WavyChatApp.ico">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .auth-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .input-group input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0088cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #006bb3;
+    }
+    #error-message {
+      color: red;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .toggle-form {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #777;
+    }
+    .toggle-form a {
+        color: #0088cc;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .toggle-form a:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-container"> 
+<h2 id="formTitle">Registration</h2> 
+<div class="input-group"> 
+<label for="usernameInput">Username:</label> 
+<input type="text" id="usernameInput" placeholder="Your name"> 
+</div> 
+<div class="input-group"> 
+<label for="emailInput">Email:</label> 
+<input type="email" id="emailInput" placeholder="example@email.com"> 
+</div> 
+<div class="input-group"> 
+<label for="passwordInput">Password:</label> 
+<input type="password" id="passwordInput" placeholder="Minimum 6 characters"> 
+</div> 
+<button id="authButton" onclick="handleAuth()">Register</button> 
+<p id="error-message"></p> 
+<p class="toggle-form">Already have an account? <a id="toggleAuthMode">Login</a></p> 
+</div> 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script> 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script> 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script> 
+<script> 
+const firebaseConfig = { 
+  apiKey: "AIzaSyDkddzOzJyOK4JfvGq7S6SD3usXaAGqBog", 
+  authDomain: "mymessenger-c1bde.firebaseapp.com", 
+  projectId: "mymessenger-c1bde", 
+  storageBucket: "mymessenger-c1bde.firebasestorage.app", 
+  messagingSenderId: "331583803279", 
+  appId: "1:331583803279:web:10a7a2186d583abdab05fa", 
+  measurementId: "G-WBT9D86V0W", 
+  databaseURL: "https://mymessenger-c1bde-default-rtdb.firebaseio.com" 
+}; 
+
+firebase.initializeApp(firebaseConfig); 
+const auth = firebase.auth(); 
+const db = firebase.database(); 
+
+let isRegisterMode = true; 
+
+document.addEventListener('DOMContentLoaded', () => { 
+    document.getElementById('toggleAuthMode').addEventListener('click', toggleAuthMode); 
+    toggleAuthMode(false); // Initialize to registration mode first, then switch
+}); 
+
+function toggleAuthMode(switchNow = true) {
+    if (switchNow) {
+        isRegisterMode = !isRegisterMode;
+    }
+    
+    const formTitle = document.getElementById('formTitle');
+    const authButton = document.getElementById('authButton');
+    const usernameInputGroup = document.querySelector('.input-group:has(#usernameInput)');
+    const toggleAuthModeLink = document.getElementById('toggleAuthMode');
+
+    if (isRegisterMode) {
+        formTitle.textContent = 'Registration';
+        authButton.textContent = 'Register';
+        usernameInputGroup.style.display = 'block';
+        toggleAuthModeLink.textContent = 'Login';
+        toggleAuthModeLink.parentElement.firstChild.nodeValue = 'Already have an account? ';
+    } else {
+        formTitle.textContent = 'Login';
+        authButton.textContent = 'Login';
+        usernameInputGroup.style.display = 'none';
+        toggleAuthModeLink.textContent = 'Register';
+        toggleAuthModeLink.parentElement.firstChild.nodeValue = 'Don\'t have an account? ';
+    }
+    displayError(''); // Clear any previous errors
+}
+
+function displayError(message) {
+    document.getElementById('error-message').textContent = message;
+}
+
+async function handleAuth() {
+    displayError(''); // Clear previous errors
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    const username = document.getElementById('usernameInput').value;
+
+    if (!email || !password) {
+        displayError('Email and password cannot be empty.');
+        return;
+    }
+
+    if (isRegisterMode) {
+        // Registration of a new user
+        if (!username) {
+            displayError('Username cannot be empty for registration.');
+            return;
+        }
+
+        const usernameLower = username.toLowerCase();
+
+        // 1. Check if username already exists
+        const usernameSnapshot = await db.ref('usernames').orderByValue().equalTo(usernameLower).once('value');
+        if (usernameSnapshot.exists()) {
+            displayError('This username is already taken. Please choose another one.');
+            return;
+        }
+
+        try {
+            // 2. Create user with email and password
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // 3. Store the username and email in Realtime Database (in the users/$uid node)
+            await db.ref('users/' + user.uid).set({
+                username: username,
+                username_lower: usernameLower, // Lowercase name for searching
+                email: email,
+                registeredAt: Date.now()
+            });
+
+            // 4. Store the username in the "usernames" node for quick uniqueness checking
+            await db.ref('usernames/' + user.uid).set(usernameLower);
+
+            alert('Registration successful! You are logged in.');
+            window.location.href = 'index.html'; // Redirect to the main page
+        } catch (error) {
+            console.error("Registration error:", error);
+            let message = 'Registration error: ' + error.message;
+            if (error.code === 'auth/email-already-in-use') {
+                message = 'This email is already in use. Please log in or use another email.';
+            } else if (error.code === 'auth/invalid-email') {
+                message = 'Invalid email address.';
+            }
+            displayError(message);
+        }
+    } else {
+        // Login of an existing user
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            alert('Successful login!');
+            window.location.href = 'index.html'; // Redirect to the main page
+        } catch (error) {
+            console.error("Error while logging in:", error);
+            let message = 'Login error: ' + error.message;
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                message = 'Invalid email or password.';
+            } else if (error.code === 'auth/invalid-email') {
+                message = 'Invalid email address.';
+            }
+            displayError(message);
+        }
+    }
+}
+</script>
+</body>
+</html>
